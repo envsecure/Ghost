@@ -1,5 +1,5 @@
 const {agentProvider, mockManager, fixtureManager, matchers} = require('../../utils/e2e-framework');
-const {anyContentVersion, anyEtag, anyObjectId, anyUuid, anyISODateTime, anyString, anyArray} = matchers;
+const {anyContentVersion, anyEtag, anyObjectId, anyUuid, anyISODateTime, anyString, anyArray, anyObject, nullable} = matchers;
 const testUtils = require('../../utils');
 const assert = require('node:assert/strict');
 const models = require('../../../core/server/models');
@@ -80,6 +80,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: [subscriptionSnapshotWithTier],
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: [tierSnapshot]
                 })
@@ -105,6 +106,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: [subscriptionSnapshot],
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: []
                 })
@@ -171,6 +173,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -202,6 +205,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -267,6 +271,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -299,6 +304,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -362,6 +368,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -394,6 +401,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -461,6 +469,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -493,6 +502,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -574,6 +584,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -608,6 +619,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })
@@ -691,6 +703,7 @@ describe('Members API: edit subscriptions', function () {
                     updated_at: anyISODateTime,
                     labels: anyArray,
                     subscriptions: anyArray,
+                    current_subscription: nullable(anyObject),
                     newsletters: anyArray,
                     tiers: anyArray
                 })

@@ -89,6 +89,27 @@ export function buildMemberOperationParams({nql, search}: BuildMemberOperationPa
     };
 }
 
+/**
+ * Resolve the member's current subscription, preferring the field returned by
+ * the backend. Falls back to local resolution for older API responses that
+ * don't yet expose `current_subscription` (deploy skew between backend and
+ * admin assets). Once the field has been live everywhere for long enough,
+ * `mostRelevantSubscription` and this fallback can be removed.
+ *
+ * The `!== undefined` check is intentional — three distinct states matter:
+ *   • `undefined` — field absent (old BE during deploy skew) → use fallback
+ *   • `null`      — BE returned the field, member has no resolved sub
+ *   • `Object`    — BE returned the resolved sub
+ * Using `!= null` would re-run the fallback when the BE legitimately returned
+ * null, re-introducing the duplication this field exists to remove.
+ */
+export function getCurrentSubscription(member: Member): MemberSubscription | null {
+    if (member.current_subscription !== undefined) {
+        return member.current_subscription;
+    }
+    return mostRelevantSubscription(member.subscriptions);
+}
+
 export function mostRelevantSubscription(
     subscriptions: MemberSubscription[] | undefined
 ): MemberSubscription | null {
@@ -102,6 +123,9 @@ export function mostRelevantSubscription(
         return null;
     }
 
+    // Ordering must match the backend `members_resolved_subscription` view so
+    // that the displayed sub matches the one filters resolve against:
+    //   active statuses > inactive, then most recent start_date, then id asc.
     const sorted = [...withId].sort((a, b) => {
         const aActive = ACTIVE_SUBSCRIPTION_STATUSES.has(a.status);
         const bActive = ACTIVE_SUBSCRIPTION_STATUSES.has(b.status);
@@ -113,20 +137,24 @@ export function mostRelevantSubscription(
             return 1;
         }
 
-        const aEnd = new Date(a.current_period_end).getTime();
-        const bEnd = new Date(b.current_period_end).getTime();
+        const aStart = new Date(a.start_date).getTime();
+        const bStart = new Date(b.start_date).getTime();
 
-        if (Number.isNaN(aEnd) && Number.isNaN(bEnd)) {
-            return 0;
+        if (Number.isNaN(aStart) && Number.isNaN(bStart)) {
+            return a.id.localeCompare(b.id);
         }
-        if (Number.isNaN(aEnd)) {
+        if (Number.isNaN(aStart)) {
             return 1;
         }
-        if (Number.isNaN(bEnd)) {
+        if (Number.isNaN(bStart)) {
             return -1;
         }
 
-        return bEnd - aEnd;
+        if (aStart !== bStart) {
+            return bStart - aStart;
+        }
+
+        return a.id.localeCompare(b.id);
     });
 
     return sorted[0];
@@ -159,7 +187,7 @@ export function getActiveColumnValue(
             : null;
 
     case 'subscriptions.plan_interval': {
-        const interval = mostRelevantSubscription(member.subscriptions)?.plan?.interval;
+        const interval = getCurrentSubscription(member)?.plan?.interval;
         if (!interval) {
             return null;
         }
@@ -167,7 +195,7 @@ export function getActiveColumnValue(
     }
 
     case 'subscriptions.status': {
-        const status = mostRelevantSubscription(member.subscriptions)?.status;
+        const status = getCurrentSubscription(member)?.status;
         if (!status) {
             return null;
         }
@@ -181,13 +209,13 @@ export function getActiveColumnValue(
 
     case 'subscriptions.start_date':
         return formatDateColumn(
-            mostRelevantSubscription(member.subscriptions)?.start_date,
+            getCurrentSubscription(member)?.start_date,
             timezone
         );
 
     case 'subscriptions.current_period_end':
         return formatDateColumn(
-            mostRelevantSubscription(member.subscriptions)?.current_period_end,
+            getCurrentSubscription(member)?.current_period_end,
             timezone
         );
 
